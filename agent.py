@@ -3,9 +3,15 @@ from strands import Agent, tool
 from strands.models import BedrockModel
 from strands.session.file_session_manager import FileSessionManager
 from strands.hooks import BeforeToolCallEvent
+from pathlib import Path
+from gates import gate_error_message, write_gate_stamp
+import time
+from datetime import datetime, timezone
+
 
 MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "us.anthropic.claude-sonnet-4-6")
 REGION = os.getenv("AWS_REGION", "us-east-1")
+REPORTS_DIR = Path(os.environ.get("REPORTS_DIR", Path(__file__).parent / "reports"))
 
 # ---------------- TOOLS ----------------
 
@@ -42,28 +48,58 @@ def load_skill(regulation: str) -> str:
 
 @tool
 def save_report(report_markdown: str, document_name: str) -> str:
-    """Save a markdown compliance report into reports/ and return the file path."""
-    os.makedirs("reports", exist_ok=True)
+    """Saves a markdown compliance report into reports/ and returns the file path."""
+    # --- GATES: block -> fix -> retry ---
+    error = gate_error_message(report_markdown)
+    if error:
+        print("[gates] save_report BLOCKED")
+        return error                       # model sees violations, self-corrects, retries
+    print("[gates] save_report passed citation+disclaimer")
+
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)                      # was: os.makedirs("reports", ...)
     safe = document_name.rsplit(".", 1)[0].replace("/", "_").replace("\\", "_")
-    out = os.path.join("reports", f"{safe}-compliance-report.md")
+    out = REPORTS_DIR / f"{safe}-compliance-report.md"                  # was: os.path.join("reports", ...)
     with open(out, "w", encoding="utf-8") as f:
         f.write(report_markdown)
-    return out
+
+    write_gate_stamp(out)                  # audit stamp: <stem>.gates.json next to the report
+
+    return str(out)     # keep it — likely `return str(out)
 
 # ---------------- HOOKS: audit log + rate limiter ----------------
 
-AUDIT_LOG = "audit_log.jsonl"
-_tool_counts: dict = {}
+AUDIT_LOG = REPORTS_DIR / "audit_log.jsonl"          # anchored, platform-aware
+MAX_TOOL_CALLS_PER_MINUTE = 60
+_tool_call_times: list[float] = []                   # rolling window for rate limit
+
 
 def audit_and_limit(event: BeforeToolCallEvent):
-    """Deterministic safety layer: log every tool call, stop runaway loops."""
-    name = event.tool_use["name"]
-    with open(AUDIT_LOG, "a", encoding="utf-8") as f:
-        f.write(json.dumps({"tool": name}) + "\n")
-    _tool_counts[name] = _tool_counts.get(name, 0) + 1
-    if _tool_counts[name] > 15:
-        event.interrupt("rate_limit",
-            reason=f"Tool '{name}' exceeded 15 calls — stopping possible loop.")
+    tool_name = event.tool_use["name"]
+
+    # ---- 1. RATE LIMIT (enforcement) — must run OUTSIDE the try block,
+    #         because event.interrupt() works by raising an interrupt ----
+    now = time.time()
+    while _tool_call_times and now - _tool_call_times[0] > 60:
+        _tool_call_times.pop(0)
+    _tool_call_times.append(now)
+    if len(_tool_call_times) > MAX_TOOL_CALLS_PER_MINUTE:
+        event.interrupt(
+            "rate_limit",
+            f"Rate limit exceeded: more than {MAX_TOOL_CALLS_PER_MINUTE} tool calls in 60s.",
+        )
+
+    # ---- 2. AUDIT LOG (observability) — may never crash an invocation ----
+    try:
+        AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
+        record = {
+            "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "tool": tool_name,
+            "input_keys": sorted((event.tool_use.get("input") or {}).keys()),
+        }
+        with open(AUDIT_LOG, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except OSError as e:
+        print(f"[audit] log write failed (non-fatal): {e}")
 
 # ---------------- AGENT ----------------
 
