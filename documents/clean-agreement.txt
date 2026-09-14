@@ -1,0 +1,11 @@
+DATA PROCESSING AGREEMENT
+
+1. Purpose. The Processor shall use personal data solely to provide the email delivery services described in Annex I, and for no other purpose.
+
+2. Third Parties. Personal data may be shared only with sub-processors listed in Annex II, each bound by a written data processing agreement imposing equivalent obligations.
+
+3. Data Subject Rights. Data subjects may request deletion of their personal data at any time by contacting privacy@company.example; requests will be honored within 30 days.
+
+4. Transfers. Data transfers outside the EEA shall occur only under Standard Contractual Clauses approved by the European Commission.
+
+5. Retention. Personal data shall be retained no longer than 24 months after the end of the service term, then securely deleted.
