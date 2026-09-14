@@ -53,7 +53,7 @@ Out-of-scope law is rejected even when it's real (e.g., GDPR Art. 44 SCC article
 🚀 Quick Start
 Prerequisites: Python 3.12 · AWS account with Bedrock model access to Claude Sonnet 4.6in us-east-1 · no Docker required.
 
-1. Clone and set upgit clone https://github.com/arpit-patel22/compliance-copilot.gitcd compliance-copilotpython -m venv .venv.venv\Scripts\activatepip install -r requirements.txt# 
+1. Clone and set upgit clone https://github.com/arpit-patel22/compliance-copilot compliance-copilotpython -m venv .venv.venv\Scripts\activatepip install -r requirements.txt# 
 2. Configure AWS credentialsaws configure          # region: us-east-1# 
 3. Run locally (AgentCore protocol server on :8080)python main.py         
 terminal 1 — leave runningpython client.py "Analyze documents/demo-contract.txt for GDPR Art. 28 processor obligations and save a report."    
