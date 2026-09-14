@@ -82,7 +82,9 @@ WORKFLOW for every analysis:
 RULES:
 - NEVER state a finding without a regulation citation.
 - If no skill exists for a requested regulation, say so instead of guessing.
-- Be concise. Output reports in markdown."""
+- Be concise. Output reports in markdown.
+- Do not use emoji in reports; use plain text markers like [HIGH], [MEDIUM], [LOW].
+- If no skill exists for a requested regulation, say so instead of guessing"""
 
 compliance_agent = Agent(
     model=BedrockModel(model_id=MODEL_ID, region_name=REGION, temperature=0.2),
