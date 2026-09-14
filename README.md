@@ -46,7 +46,8 @@ Out-of-scope law is rejected even when it's real (e.g., GDPR Art. 44 SCC article
 
 🏗️ Technical Architecture
 
-![alt text](<AgentCore Runtime Workflow-2026-09-14-180740-1.png>)
+![Alternative Text](./Image/AgentCore%20Runtime%20Workflow-2026-09-14-180740-1.png)
+
 
 
 🚀 Quick Start
