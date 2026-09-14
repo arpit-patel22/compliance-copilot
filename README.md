@@ -3,7 +3,7 @@ AI-Powered Compliance Analysis Agent — that cannot save a non-compliant report
 
 PythonStrandsAWSModel
 
-▶ Demo video: (add link)
+▶ Demo video: https://youtu.be/CiqCjOMfO0M
 
 📋 Overview
 ComplianceCopilot is an AI agent that analyzes business documents (contracts, DPAs,policies) for compliance issues across GDPR, HIPAA, and CCPA, and generates scored,citation-backed reports with exact remediation steps.
