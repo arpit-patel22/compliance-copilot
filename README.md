@@ -294,7 +294,7 @@ compliance-copilot/
 | Member | Role |
 |---|---|
 | **[Arpit Patel](https://github.com/arpit-patel22)** | Agent architecture, compliance gates, core development |
-| **Jainil Patel** | AWS integration and deployment |
+| **[Jainil Patel](https://github.com/Jainil0401)** | AWS integration and deployment |
 
 ---
 
