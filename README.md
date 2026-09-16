@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.svg" alt="ComplianceCopilot" width="88" height="88" />
+<img src="Image/logo.svg" alt="ComplianceCopilot" width="88" height="88" />
 
 # ComplianceCopilot
 
